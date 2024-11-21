@@ -9,7 +9,8 @@ var ballAngle = 0;
 var ballPos = [0,0];
 var ballSpeed = 5;
 
-let isAI = {1: false, 2: false}
+var keys = [0,0];
+let isAI = [false,false]
 
 function setAI(playerNumber)
 {
@@ -31,39 +32,47 @@ function start()
     pedal2.style.top = 512 / 2 - 128 / 2;
     player2pos = 512 / 2 - 128 / 2;
 
-    ball.style.top = 512 / 2 - 32 / 2;
-    ball.style.left = 512 / 2 - 32 / 2;
-    ballPos[0] = 512 / 2 - 32 / 2;
-    ballPos[1] = 512 / 2 - 32 / 2;
-
-    ballAngle = Math.round(Math.random()) * Math.PI;
-
+    resetBall();
     document.addEventListener('keydown', function(event) {
-        if(!isAI[1]){
-            if(event.key == "w")
-            {
-                move(0,1);
-            }
-            if(event.key == "s")
-            {
-                move(0,-1);
-            }
+        if(event.key == "w")
+        {
+            keys[0] = 1;
         }
-        if(!isAI[2]){
-            if(event.key == "ArrowUp")
-            {
-                move(1,1);
-            }
-            if(event.key == "ArrowDown")
-            {
-                move(1,-1);
-            }
+        else if(event.key == "s")
+        {
+            keys[0] = -1;
+        }
+        if(event.key == "ArrowUp")
+        {
+            keys[1] = 1;
+        }
+        else if(event.key == "ArrowDown")
+        {
+            keys[1] = -1;
+        }
+    });
+    document.addEventListener('keyup', function(event) {
+        if(event.key == "w")
+        {
+            keys[0] = 0;
+        }
+        if(event.key == "s")
+        {
+            keys[0] = 0;
+        }
+        if(event.key == "ArrowUp")
+        {
+            keys[1] = 0;
+        }
+        if(event.key == "ArrowDown")
+        {
+            keys[1] = 0;
         }
     });
 
     // Browsers can remeber the values of checkboxes, so js needs to check
+    setAI(0);
     setAI(1);
-    setAI(2);
 
     setInterval(update, 1000 / 60);
 }
@@ -71,11 +80,11 @@ function start()
 
 function processAI()
 {
-    if(isAI[1])
+    if(isAI[0])
     {
         move(0, -Math.min(Math.max(ballPos[1]-player1pos-64, -1), 1));
     }
-    if(isAI[2])
+    if(isAI[1])
     {
         console.warn(ballPos[1] + " " + player2pos)
         move(1, -Math.min(Math.max(ballPos[1]-player2pos-64, -1), 1));
@@ -84,6 +93,15 @@ function processAI()
 
 function update()
 {
+    if(!isAI[0])
+    {
+        move(0,keys[0]);
+    }
+    if(!isAI[1])
+    {
+        move(1,keys[1]);
+    }
+
     processAI();
 
     console.log(ballAngle);
@@ -97,9 +115,9 @@ function update()
         oldPos[0] > (512 - 8 - 32 - 32) &&
         ballPos[0] >= (512 - 8 - 32 - 32) &&
         ballPos[1] > player2pos &&
-        ballPos[1] < player2pos + 128)
+        ballPos[1] < player2pos + 128 - 32)
     {
-        ballAngle = (ballAngle + Math.PI + Math.random() * 0.25 * Math.PI) % (Math.PI * 2);
+        ballAngle = (ballAngle + Math.PI + (Math.random() - 0.5) * 0.25 * Math.PI) % (Math.PI * 2);
     }
 
     //Collider to left
@@ -111,14 +129,43 @@ function update()
         ballPos[1] > player1pos &&
         ballPos[1] < player1pos + 128)
     {
-        ballAngle = (ballAngle + Math.PI + Math.random() * 0.25 * Math.PI) % (Math.PI * 2);
+        ballAngle = (ballAngle + Math.PI + (Math.random() - 0.5) * 0.25 * Math.PI) % (Math.PI * 2);
     }
     
-    //Topwall
-    
+    //Topwall   y angle is flipped
+    if(oldPos[1] > 0 && ballPos[1] <= 0 && ballAngle > Math.PI && ballAngle < Math.PI * 2)
+    {
+        ballAngle += (Math.PI - ballAngle) * 2
+    }
+
+    //Bottom
+    if(oldPos[1] > 512 - 32 && ballPos[1] <= 512 - 32 && ballAngle > 0 && ballAngle < Math.PI)
+    {
+        ballAngle += (Math.PI - ballAngle) * 2
+    }
 
     ball.style.left = ballPos[0];
     ball.style.top = ballPos[1];
+
+    if(ballPos[0] < 0)
+    {
+        console.log("Player 2 won!");
+        resetBall();
+    }
+    if(ballPos[0] > 512)
+    {
+        console.log("Player 1 won!");
+        resetBall();
+    }
+}
+
+function resetBall()
+{
+    ballPos[0] = 512 / 2 - 32 / 2;
+    ballPos[1] = 512 / 2 - 32 / 2;
+    ball.style.top = ballPos[1];
+    ball.style.left = ballPos[0];
+    ballAngle = Math.round(Math.random()) * Math.PI;
 }
 
 function move(index,dir)
@@ -126,11 +173,27 @@ function move(index,dir)
     if(index == 0)
     {
         player1pos -= dir * playerSpeed;
+        if(player1pos < 0)
+        {
+            player1pos = 0;
+        }
+        if(player1pos > 512 - 128)
+        {
+            player1pos = 512 - 128;
+        }
         pedal1.style.top = player1pos;
     }
     if(index == 1)
     {
         player2pos -= dir * playerSpeed;
+        if(player2pos < 0)
+        {
+            player2pos = 0;
+        }
+        if(player2pos > 512 - 128)
+        {
+            player2pos = 512 - 128;
+        }
         pedal2.style.top = player2pos;
     }
 }
