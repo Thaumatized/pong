@@ -1,1 +1,5 @@
-// comment :)
+#ai-checkbox-container {
+    display: flexbox;
+    justify-content: space-between;
+    width: 100%;
+}
