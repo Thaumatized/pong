@@ -10,6 +10,13 @@ var ballPos = [0,0];
 var ballSpeed = 5;
 
 var keys = [0,0];
+let isAI = [false,false]
+
+function setAI(playerNumber)
+{
+    isAI[playerNumber] = document.getElementById("ai-checkbox-" + playerNumber).checked;
+    console.warn(isAI[playerNumber]);
+}
 
 function start()
 {
@@ -63,13 +70,39 @@ function start()
         }
     });
 
+    // Browsers can remeber the values of checkboxes, so js needs to check
+    setAI(0);
+    setAI(1);
+
     setInterval(update, 1000 / 60);
+}
+
+
+function processAI()
+{
+    if(isAI[0])
+    {
+        move(0, -Math.min(Math.max(ballPos[1]-player1pos-64, -1), 1));
+    }
+    if(isAI[1])
+    {
+        console.warn(ballPos[1] + " " + player2pos)
+        move(1, -Math.min(Math.max(ballPos[1]-player2pos-64, -1), 1));
+    }
 }
 
 function update()
 {
-    move(0,keys[0]);
-    move(1,keys[1]);
+    if(!isAI[0])
+    {
+        move(0,keys[0]);
+    }
+    if(!isAI[1])
+    {
+        move(1,keys[1]);
+    }
+
+    processAI();
 
     console.log(ballAngle);
     var oldPos = ballPos.slice();
@@ -140,11 +173,27 @@ function move(index,dir)
     if(index == 0)
     {
         player1pos -= dir * playerSpeed;
+        if(player1pos < 0)
+        {
+            player1pos = 0;
+        }
+        if(player1pos > 512 - 128)
+        {
+            player1pos = 512 - 128;
+        }
         pedal1.style.top = player1pos;
     }
     if(index == 1)
     {
         player2pos -= dir * playerSpeed;
+        if(player2pos < 0)
+        {
+            player2pos = 0;
+        }
+        if(player2pos > 512 - 128)
+        {
+            player2pos = 512 - 128;
+        }
         pedal2.style.top = player2pos;
     }
 }

@@ -25,3 +25,10 @@ body
     height: 128px;
     width: 8px;
 }
+
+#ai-checkbox-container {
+    display: flex;   
+    justify-content: space-between;
+    width: 512px;
+    color: grey;
+}
