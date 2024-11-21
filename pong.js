@@ -9,6 +9,14 @@ var ballAngle = 0;
 var ballPos = [0,0];
 var ballSpeed = 5;
 
+let isAI = {1: false, 2: false}
+
+function setAI(playerNumber)
+{
+    isAI[playerNumber] = document.getElementById("ai-checkbox-" + playerNumber).checked;
+    console.warn(isAI[playerNumber]);
+}
+
 function start()
 {
     pedal1 = document.getElementById("player1");
@@ -31,28 +39,53 @@ function start()
     ballAngle = Math.round(Math.random()) * Math.PI;
 
     document.addEventListener('keydown', function(event) {
-        if(event.key == "w")
-        {
-            move(0,1);
+        if(!isAI[1]){
+            if(event.key == "w")
+            {
+                move(0,1);
+            }
+            if(event.key == "s")
+            {
+                move(0,-1);
+            }
         }
-        if(event.key == "s")
-        {
-            move(0,-1);
-        }
-        if(event.key == "ArrowUp")
-        {
-            move(1,1);
-        }
-        if(event.key == "ArrowDown")
-        {
-            move(1,-1);
+        if(!isAI[2]){
+            if(event.key == "ArrowUp")
+            {
+                move(1,1);
+            }
+            if(event.key == "ArrowDown")
+            {
+                move(1,-1);
+            }
         }
     });
+
+    // Browsers can remeber the values of checkboxes, so js needs to check
+    setAI(1);
+    setAI(2);
+
     setInterval(update, 1000 / 60);
+}
+
+
+function processAI()
+{
+    if(isAI[1])
+    {
+        move(0, -Math.min(Math.max(ballPos[1]-player1pos-64, -1), 1));
+    }
+    if(isAI[2])
+    {
+        console.warn(ballPos[1] + " " + player2pos)
+        move(1, -Math.min(Math.max(ballPos[1]-player2pos-64, -1), 1));
+    }
 }
 
 function update()
 {
+    processAI();
+
     console.log(ballAngle);
     var oldPos = ballPos.slice();
     ballPos[0] += Math.cos(ballAngle) * ballSpeed;
