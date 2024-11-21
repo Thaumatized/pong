@@ -1,18 +1,21 @@
 <html>
-    <style >
-        #ai-checkbox-container {
-            display: flex;   
-            justify-content: space-between;
-            width: 512px;
-        }
-    </style>
-    <div id="ai-checkbox-container">
-        <span>
-            <input type="checkbox" id="ai-checkbox-1" onchange="setAI(1)">AI</input>
-        </span>
-        <span>
-            <input type="checkbox" id="ai-checkbox-2" onchange="setAI(2)">AI</input>
-        </span>
-    </div>
-    <script src="pong-ai.js"></script>
+    <head>
+        <link rel="stylesheet" href="style.css">
+    </head>
+    <body>
+        <div class="board">
+            <div class="pedal" id="player1"></div>
+            <div class="ball" id="ball"></div>
+            <div class="pedal" id="player2"></div>
+        </div>
+        <div id="ai-checkbox-container">
+            <span>
+                <input type="checkbox" id="ai-checkbox-1" onchange="setAI(1)">AI</input>
+            </span>
+            <span>
+                <input type="checkbox" id="ai-checkbox-2" onchange="setAI(2)">AI</input>
+            </span>
+        </div>
+    </body>
 </html>
+<script src="pong.js"></script>
