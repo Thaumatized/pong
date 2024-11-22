@@ -12,10 +12,11 @@ var ballSpeed = 5;
 var keys = [0,0];
 let isAI = [false,false]
 
+const PEDAL_MAX_ANGLE = Math.PI / 4;
+
 function setAI(playerNumber)
 {
     isAI[playerNumber] = document.getElementById("ai-checkbox-" + playerNumber).checked;
-    console.warn(isAI[playerNumber]);
 }
 
 function start()
@@ -77,6 +78,9 @@ function start()
     setInterval(update, 1000 / 60);
 }
 
+function horizontalFlip(angle) { return (Math.PI - angle) }
+
+function verticalFlip(angle) { return (2*Math.PI - angle) }
 
 function processAI()
 {
@@ -86,7 +90,6 @@ function processAI()
     }
     if(isAI[1])
     {
-        console.warn(ballPos[1] + " " + player2pos)
         move(1, -Math.min(Math.max(ballPos[1]-player2pos-64, -1), 1));
     }
 }
@@ -104,44 +107,43 @@ function update()
 
     processAI();
 
-    console.log(ballAngle);
     var oldPos = ballPos.slice();
     ballPos[0] += Math.cos(ballAngle) * ballSpeed;
     ballPos[1] += Math.sin(ballAngle) * ballSpeed;
 
-    //Collider to right
-    if(
-        (ballAngle < Math.PI / 2 || ballAngle > Math.PI * 1.5) &&
-        oldPos[0] > (512 - 8 - 32 - 32) &&
-        ballPos[0] >= (512 - 8 - 32 - 32) &&
-        ballPos[1] > player2pos &&
-        ballPos[1] < player2pos + 128 - 32)
-    {
-        ballAngle = (ballAngle + Math.PI + (Math.random() - 0.5) * 0.25 * Math.PI) % (Math.PI * 2);
-    }
-
     //Collider to left
     if(
-        ballAngle > Math.PI / 2 &&
-        ballAngle < Math.PI * 1.5 &&
         oldPos[0] > (8 + 32 + 4) &&
         ballPos[0] <= (8 + 32 + 4) &&
         ballPos[1] > player1pos &&
         ballPos[1] < player1pos + 128)
     {
-        ballAngle = (ballAngle + Math.PI + (Math.random() - 0.5) * 0.25 * Math.PI) % (Math.PI * 2);
+        ballAngle = horizontalFlip(ballAngle);
+
+        ballAngle += ((player1pos - ballPos[1] - 16)/64 + 1) * PEDAL_MAX_ANGLE;
+    }
+
+    //Collider to right
+    if(
+        oldPos[0] < (512 - 8 - 32 - 32) &&
+        ballPos[0] >= (512 - 8 - 32 - 32) &&
+        ballPos[1] > player2pos &&
+        ballPos[1] < player2pos + 128 - 32)
+    {
+        ballAngle = horizontalFlip(ballAngle);
+        ballAngle -= ((player2pos - ballPos[1] - 16)/64 + 1)* PEDAL_MAX_ANGLE;
     }
     
     //Topwall   y angle is flipped
-    if(oldPos[1] > 0 && ballPos[1] <= 0 && ballAngle > Math.PI && ballAngle < Math.PI * 2)
+    if(oldPos[1] > 0 && ballPos[1] <= 0)
     {
-        ballAngle += (Math.PI - ballAngle) * 2
+        ballAngle = verticalFlip(ballAngle);
     }
 
     //Bottom
-    if(oldPos[1] > 512 - 32 && ballPos[1] <= 512 - 32 && ballAngle > 0 && ballAngle < Math.PI)
+    if(oldPos[1] < 512 - 32 && ballPos[1] > 512 - 32)
     {
-        ballAngle += (Math.PI - ballAngle) * 2
+        ballAngle = verticalFlip(ballAngle);
     }
 
     ball.style.left = ballPos[0];
